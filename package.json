@@ -3,9 +3,18 @@
     "start": "nodemon index.js"
   },
   "dependencies": {
-    "express": "^4.18.1"
+    "ethers": "^6.2.3",
+    "express": "^4.18.1",
+    "kafkajs": "^2.2.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
-  }
+  },
+  "name": "codespaces-express",
+  "description": "Welcome to your shiny new Codespace running Express! We've got everything fired up and running for you to explore Express.",
+  "version": "1.0.0",
+  "main": "Listener_MS/index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
