@@ -241,6 +241,8 @@ const listener = async () => {
       topic: "Unstake",
       messages: [
         { value: "Unstake called by" + liquidityProvider + "with amount" + amount },
+        { value: liquidityProvider},
+        { value: amount }
       ],
     });
 
