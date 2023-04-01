@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "../../Contracts/node_modules/@openzeppelin/contracts/security/Pausable.sol";
+import "../../Contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 contract LiquidityPool is Ownable,Pausable {
 // the following vulnerabilities can be seen here

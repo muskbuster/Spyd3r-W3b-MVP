@@ -1,6 +1,4 @@
 const { ethers } = require("ethers");
-require("dotenv").config();
-const Web3 = require("web3/lib");
 
 /**
  * Create Providers
