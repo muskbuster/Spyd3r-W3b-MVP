@@ -1,8 +1,14 @@
-// here we track pending transactionss in our contract mempool if the transaction is not mined within 10 blocks we will send a message
-// through kafka as producer which is later picked by our pauser service and the transaction is paused
+// here we track pending transactionss in our contract mempool
+// and we run it in our ethereum vm using ethereumjs-vm and run the transaction and check if it is having too low gas attached to it and token transfer is unusually high
 
 const ethers = require("ethers");
 const { Kafka } = require("kafkajs");
+const {Address}=require('@ethereumjs/util');
+const {defaultAbiCoder}=require('@ethersproject/abi');
+const{Chain,Common,Hardfork}=require('@ethereumjs/common');
+const {Transaction} = require('@ethereumjs/tx');
+const{VM}=require('@ethereumjs/vm');
+
 const { MUMBAI_80001, GOERLIETH,QuickNode} = require("./providers");
 var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d0b726da5b7a929a3e8c5efe837f1dd78/";
 const trackTransactions = async () => {
@@ -196,31 +202,44 @@ const trackTransactions = async () => {
     //we should check that the transaction is confirmed within 10 blocks
     QuickNode.on("pending", async (txHash) => {
       try {
-        console.log("pending txHash: ",txHash);
+        //console.log("pending txHash: ",txHash);
         // Wait for the transaction to be mined
-        const receipt = await provider.waitForTransaction(txHash);
+        const receipt = await QuickNode.waitForTransaction(txHash);
+        //filter out the transactions that are not related to our contract
+        if (receipt.to === contractAddress) {
+          console.log("receipt: ",receipt);
+          //check if the transaction is a stake or unstake
+          const tx = await QuickNode.getTransaction(txHash);
+          const data = tx.data;
+          console.log("data: ",data);
+          const methodId = data.substring(0, 10);
+          if (methodId === "0x3a4b66f1") {
 
-        // Get the current block number
-        const currentBlockNumber = await provider.getBlockNumber();
+            //run input data through the abi and contract in ethereumjs-vm to get gas
+            const vm = new VM();
+            const contract = new Contract(abi, contractAddress);
+            const result = await vm.runTx({
+              to: contractAddress,
+              data: data,
+            });
+            const gasUsed = result.gasUsed;
+            const gasPrice = tx.gasPrice;
+            const gasCost = gasUsed * gasPrice;
+            const amount = tx.value;
+            const total = amount - gasCost;
+            // fetch actual gas of sent transaction and simulation and check if it is lower
+            const actualGas = receipt.gasUsed;
+            const simulatedGas = result.gasUsed;
+            if (actualGas < simulatedGas) {
+              console.log(
+                `Gas used for transaction ${txHash} is lower than simulated gas. Actual: ${actualGas}, Simulated: ${simulatedGas}`
+              );
+            }
 
-        // Check if the transaction was confirmed within 10 blocks
-        if (receipt.blockNumber + 10 < currentBlockNumber) {
-          Console.log("Transaction was not confirmed within 10 blocks,TxHash: ",txHash);
-          // // Transaction was not confirmed within 10 blocks, send message through Kafka
-          // const kafka = new Kafka({
-          //   clientId: 'my-app',
-          //   brokers: ['kafka1:9092', 'kafka2:9092']
-          // });
 
-          // const producer = kafka.producer();
-          // await producer.connect();
-          // await producer.send({
-          //   topic: 'pending-transactions',
-          //   messages: [{ value: txHash }]
-          // });
-          // await producer.disconnect();
-        }
-      } catch (err) {
+          }
+}
+ } catch (err) {
         console.error(`Error handling pending transaction ${txHash}:`, err);
       }
     });
