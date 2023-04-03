@@ -8,9 +8,10 @@ const {defaultAbiCoder}=require('@ethersproject/abi');
 const{Chain,Common,Hardfork}=require('@ethereumjs/common');
 const {Transaction} = require('@ethereumjs/tx');
 const{VM}=require('@ethereumjs/vm');
+const { fromWei } = require('@ethereumjs/vm');
 
 //setup network type for ethereumjs-vm mumabi testnet
-const common = new Common({ chain: Chain.Mainnet, hardfork: Hardfork.London });
+
 
 const { MUMBAI_80001, GOERLIETH,QuickNode} = require("./providers");
 var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d0b726da5b7a929a3e8c5efe837f1dd78/";
@@ -218,9 +219,41 @@ const trackTransactions = async () => {
 // now we run the transaction through ethereumjs-vm with decoded data with function name and amount
           const txData = { from: tx.from, to: tx.to, data: data };
           console.log("txData: ",txData);
-          const vm = new VM();
-          const result = await vm.runTx({ tx: txData });
-          console.log("result: ",result);
+          console.log("txDatafrom : ",txData.from);
+          console.log("txDatato : ",txData.to);
+          console.log("txDatadata : ",txData.data);
+
+  //         const txParams = {
+  //           from: txData.from,
+  //           to: txData.to,
+  //           value: '0x0', // 1 ETH
+  //           gasPrice: '0x01',
+  //           gasLimit: '0x100000',
+  //           nonce: '0x00',
+  //           data: txData.data,
+  //         };
+  //         const txn = new Transaction(txParams);
+  //         txn.sign(Buffer.from('1266f549bab6da821a8399cab06c5d2b9e46670592d85c875ee9ec20e84ffc71', 'hex'));
+  //         const common = new Common({ chain: Chain.Mainnet,hardfork:Hardfork.Merge});
+  //         const vm = await VM.create({ common });
+
+  //      vm.runTx({ txn }).then((result) => {
+  // console.log('Transaction result:', result);
+// });
+
+// we now fetch the gas fee from the transaction
+const gasPrice = await QuickNode.getGasPrice();
+console.log("gasPrice: ",gasPrice);
+//convert to bignumber
+const gasPriceWei = ethers.utils.parseUnits(gasPrice.toString(), "wei");
+//convert to number
+const gasPriceWeiNumber = gasPriceWei.toNumber();
+console.log("gasPriceWeiNumber: ",gasPriceWeiNumber);
+console.log("gasPriceWei: ",gasPriceWei);
+//get the gas limit for transaction
+const gasLimit = await QuickNode.estimateGas(txData);
+console.log("gasLimit: ",gasLimit);
+
 
 
 }
