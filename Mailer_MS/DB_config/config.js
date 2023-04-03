@@ -1,0 +1,16 @@
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+module.exports = async () => {
+    try {
+        const mongoURI = process.env.mongo_URI
+        // console.log(mongoURI);
+        const connection = await mongoose.connect(mongoURI, {
+        useNewUrlParser: true,
+        });
+        console.log(`MongoDB Connected: ${connection.connection.host}`);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        process.exit(1);
+    }
+    };
