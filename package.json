@@ -3,6 +3,8 @@
     "start": "nodemon index.js"
   },
   "dependencies": {
+    "docker": "^1.0.0",
+    "docker-compose": "^0.23.19",
     "ethers": "^6.2.3",
     "express": "^4.18.1",
     "hardhat": "^2.13.0",

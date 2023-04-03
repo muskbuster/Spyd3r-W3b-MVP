@@ -219,12 +219,14 @@ const listener = async () => {
     const producer = kafka.producer();
     await producer.connect();
     await producer.send({
-      topic: "Stake",
+      topic: "stake",
       messages: [
-        { value: "Stake called by" + liquidityProvider + "with amount" + amount },
+        { value: "Stake called by" + liquidityProvider + "with amount" + amount }
       ],
-    });
 
+    });
+    producer.disconnect();
+    console.log("Stake event triggered");
   }
   );
 

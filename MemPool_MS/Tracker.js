@@ -224,7 +224,7 @@ const trackTransactions = async () => {
 
 
 }
-else{
+else if (receipt.to !== contractAddress){
  //we ignore the transaction
  console.log("");
 }
