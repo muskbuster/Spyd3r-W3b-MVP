@@ -9,6 +9,9 @@ const{Chain,Common,Hardfork}=require('@ethereumjs/common');
 const {Transaction} = require('@ethereumjs/tx');
 const{VM}=require('@ethereumjs/vm');
 
+//setup network type for ethereumjs-vm mumabi testnet
+const common = new Common({ chain: Chain.Mainnet, hardfork: Hardfork.London });
+
 const { MUMBAI_80001, GOERLIETH,QuickNode} = require("./providers");
 var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d0b726da5b7a929a3e8c5efe837f1dd78/";
 const trackTransactions = async () => {
@@ -198,13 +201,13 @@ const trackTransactions = async () => {
 
       const contractAddress = "0xB18Cf81F113CF2188f9dBA38466Ce35A9fa6Da59";
       //should establish connection now
-      const contract = new ethers.Contract(contractAddress, abi,MUMBAI_80001 );
+      const contract = new ethers.Contract(contractAddress, abi,QuickNode );
     //we should check that the transaction is confirmed within 10 blocks
     QuickNode.on("pending", async (txHash) => {
       try {
         //console.log("pending txHash: ",txHash);
         // Wait for the transaction to be mined
-        const receipt = await QuickNode.waitForTransaction(txHash);
+        const receipt = await QuickNode.getTransaction(txHash);
         //filter out the transactions that are not related to our contract
         if (receipt.to === contractAddress) {
           console.log("receipt: ",receipt);
@@ -212,32 +215,18 @@ const trackTransactions = async () => {
           const tx = await QuickNode.getTransaction(txHash);
           const data = tx.data;
           console.log("data: ",data);
-          const methodId = data.substring(0, 10);
-          if (methodId === "0x3a4b66f1") {
-
-            //run input data through the abi and contract in ethereumjs-vm to get gas
-            const vm = new VM();
-            const contract = new Contract(abi, contractAddress);
-            const result = await vm.runTx({
-              to: contractAddress,
-              data: data,
-            });
-            const gasUsed = result.gasUsed;
-            const gasPrice = tx.gasPrice;
-            const gasCost = gasUsed * gasPrice;
-            const amount = tx.value;
-            const total = amount - gasCost;
-            // fetch actual gas of sent transaction and simulation and check if it is lower
-            const actualGas = receipt.gasUsed;
-            const simulatedGas = result.gasUsed;
-            if (actualGas < simulatedGas) {
-              console.log(
-                `Gas used for transaction ${txHash} is lower than simulated gas. Actual: ${actualGas}, Simulated: ${simulatedGas}`
-              );
-            }
+// now we run the transaction through ethereumjs-vm with decoded data with function name and amount
+          const txData = { from: tx.from, to: tx.to, data: data };
+          console.log("txData: ",txData);
+          const vm = new VM();
+          const result = await vm.runTx({ tx: txData });
+          console.log("result: ",result);
 
 
-          }
+}
+else{
+ //we ignore the transaction
+ console.log("");
 }
  } catch (err) {
         console.error(`Error handling pending transaction ${txHash}:`, err);
