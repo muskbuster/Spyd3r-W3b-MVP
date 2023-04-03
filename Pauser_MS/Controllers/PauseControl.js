@@ -1,28 +1,16 @@
-// here we track pending transactionss in our contract mempool
-// and we run it in our ethereum vm using ethereumjs-vm and run the transaction and check if it is having too low gas attached to it and token transfer is unusually high
+// this uses private key of deployer to pause the contract
+//  this is a consumer to topic-test topic from kafka
 
-const ethers = require("ethers");
-const { Kafka } = require("kafkajs");
-const {Address}=require('@ethereumjs/util');
-const {defaultAbiCoder}=require('@ethersproject/abi');
-const{Chain,Common,Hardfork}=require('@ethereumjs/common');
-const {Transaction} = require('@ethereumjs/tx');
-const{VM}=require('@ethereumjs/vm');
-const { fromWei } = require('@ethereumjs/vm');
-
-//setup network type for ethereumjs-vm mumabi testnet
-
-
-const { MUMBAI_80001, GOERLIETH,QuickNode} = require("./providers");
-var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d0b726da5b7a929a3e8c5efe837f1dd78/";
-
-//setup kafka
-const kafka = new Kafka({
-  clientId: "PendingTransactionTracker",
-  brokers: ["localhost:9092"],
-});
-
-const trackTransactions = async () => {
+ const { Kafka } = require("kafkajs");
+    const { MUMBAI_80001, GOERLIETH } = require("./providers");
+    const { ethers } = require("ethers");
+    require("dotenv").config();
+    const kafka = new Kafka({
+        clientId: "PendingTransactionTracker",
+        brokers: ["localhost:9092"],
+    });
+    // subscribe to topic
+    const consumer = kafka.consumer({ groupId: "test-group" });
     const abi = [
         {
           "inputs": [],
@@ -209,61 +197,31 @@ const trackTransactions = async () => {
 
       const contractAddress = "0xB18Cf81F113CF2188f9dBA38466Ce35A9fa6Da59";
       //should establish connection now
-      const contract = new ethers.Contract(contractAddress, abi,QuickNode )
-    //we should check that the transaction is confirmed within 10 blocks
-    QuickNode.on("pending", async (txHash) => {
-      try {
-        //console.log("pending txHash: ",txHash);
-        // Wait for the transaction to be mined
-        const receipt = await QuickNode.getTransaction(txHash);
-        //filter out the transactions that are not related to our contract
-        if (receipt.to === contractAddress) {
-          console.log("receipt: ",receipt);
-          //check if the transaction is a stake or unstake
-          const tx = await QuickNode.getTransaction(txHash);
-          const data = tx.data;
-          console.log("data: ",data);
-// now we run the transaction through ethereumjs-vm with decoded data with function name and amount
-          const txData = { from: tx.from, to: tx.to, data: data };
-          console.log("txData: ",txData);
-          console.log("txDatafrom : ",txData.from);
-          console.log("txDatato : ",txData.to);
-          console.log("txDatadata : ",txData.data);
-
-          //To check gas fee needed then check if it the gas sent is lower than the gas needed and broadcast as kafka producer as topic-test
-          const gasNeeded = await QuickNode.estimateGas(txData);
-          console.log("gasNeeded: ",gasNeeded);
-          const gasSent = tx.gasLimit;
-          console.log("gasSent: ",gasSent);
-          if (gasSent < gasNeeded) {
-            console.log("gasSent is less than gasNeeded");
-            //broadcast as kafka producer as topic-test
-            const producer = kafka.producer();
-            await producer.connect();
-            await producer.send({
-              topic: "topic-test",
-              messages: [
-                {
-                  value: { value: "Stake called by " +tx.from+ " with amount " +  tx.value + " and gas sent is less than gas needed" },
-                },
-              ],
-            });
-            await producer.disconnect();
+      const contract = new ethers.Contract(contractAddress, abi, MUMBAI_80001);
+      const Signer = new ethers.Wallet(process.env.PRIVATE_KEY, MUMBAI_80001);
 
 
-          }
-else if (receipt.to !== contractAddress){
- //we ignore the transaction
- console.log("");
-}
- }
 
- } catch (err) {
-        console.error(`Error handling pending transaction ${txHash}:`, err);
-      }
-    });
-    }
-    //export this module
-    module.exports = {
-      trackTransactions
+    const run = async () => {
+        // Consuming
+        //establish connection to ethers
+
+        await consumer.connect();
+        await consumer.subscribe({ topic: "topic-test", fromBeginning: true });
+        await consumer.run({
+            eachMessage: async ({ topic, partition, message }) => {
+                console.log({
+                    value: message.value.toString(),
+                });
+                //assing 2nd and 3rd values to variables address and amount
+                var address = message.value.toString().split(" ")[3];
+                var amount = message.value.toString().split(" ")[6];
+                //call pause function
+                contract.connect(Signer).pause();
+                console.log("Contract Paused");
+            },
+        });
     };
+    run().catch(console.error);
+
+    exports.run = run;

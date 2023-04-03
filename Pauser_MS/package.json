@@ -1,7 +1,6 @@
 {
   "name": "pauser_ms",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +11,9 @@
   "dependencies": {
     "@ethereumjs/vm": "^6.4.1",
     "ethers": "^5.7.2",
-    "kafkajs": "^2.2.4"
-  }
+    "kafkajs": "^2.2.4",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {},
+  "description": ""
 }

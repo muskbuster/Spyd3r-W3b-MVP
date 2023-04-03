@@ -13,7 +13,8 @@
   "dependencies": {
     "@ethereumjs/vm": "^6.4.1",
     "ethers": "^5.7.2",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "dotenv": "^16.0.3"
   },
   "resolutions": {
     "@ethereumjs/block": "3.2.1",

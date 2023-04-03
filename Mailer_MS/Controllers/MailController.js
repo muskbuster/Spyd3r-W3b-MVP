@@ -3,7 +3,7 @@
 const { Kafka } = require("kafkajs");
 const nodemailer = require("nodemailer");
 const { Receipt } = require("../Models/RecieptModel");
-
+require("dotenv").config();
 
 
 const messenger = async () => {
@@ -29,7 +29,7 @@ const messenger = async () => {
                 service: "gmail",
                 auth: {
                   user: process.env.user,
-                  pass: process.env.pass,
+                  pass: process.env.passw,
                 },
               });
                 const mailOptions = {
