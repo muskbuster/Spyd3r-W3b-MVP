@@ -242,11 +242,11 @@ const listener = async () => {
     const producer = kafka.producer();
     await producer.connect();
     await producer.send({
-      topic: "Unstake",
+      topic: "stake",
       messages: [
         { value: "Unstake called by " + liquidityProvider + "with amount " + amount },
         { value: liquidityProvider},
-        { value: amount }
+        { value: amount.toString() }
       ],
     });
 

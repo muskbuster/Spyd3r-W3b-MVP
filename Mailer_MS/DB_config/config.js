@@ -3,7 +3,7 @@ require("dotenv").config();
 
 module.exports = async () => {
     try {
-        const mongoURI = process.env.mongo_URI
+        const mongoURI = "mongodb+srv://Tester:Test123@cluster0.leaia6l.mongodb.net/?retryWrites=true&w=majority";
         // console.log(mongoURI);
         const connection = await mongoose.connect(mongoURI, {
         useNewUrlParser: true,

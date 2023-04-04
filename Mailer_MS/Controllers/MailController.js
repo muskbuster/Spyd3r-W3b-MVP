@@ -3,61 +3,62 @@
 const { Kafka } = require("kafkajs");
 const nodemailer = require("nodemailer");
 const { Receipt } = require("../Models/RecieptModel");
+const{config} = require('../DB_config/config.js');
 require("dotenv").config();
 
+const kafka = new Kafka({
+    clientId: "StakeListener",
+    brokers: ["localhost:9092"],
+});
 
 const messenger = async () => {
-    const kafka = new Kafka({
-        clientId: "StakeListener",
-        brokers: ["localhost:9092"],
-    });
     const consumer = kafka.consumer({ groupId: "test-group" });
     await consumer.connect();
     await consumer.subscribe({ topic: "stake", fromBeginning: true });
-    await consumer.subscribe({ topic: "test-topic", fromBeginning: true });
+
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             console.log({
                 value: message.value.toString(),
             });
-            //assing 2nd and 3rd values to variables address and amount
-             var address = message.value.toString().split(" ")[3];
+            var address = message.value.toString().split(" ")[3];
             var amount = message.value.toString().split(" ")[6];
             console.log(address);
             console.log(amount);
+
+            //send email
             const transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                  user: process.env.user,
-                  pass: process.env.passw,
+                    user: "catnipkong5@gmail.com",
+                    pass: "yjhvhikgrgsxwdye"
                 },
-              });
-                const mailOptions = {
-                from: process.env.user,
-                to: process.env.user,
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to:"sudeepkamat79@gmail.com",
                 subject: "Stake Confirmation",
-                text: `There has been a call to vulnerable  function in your contract by ${address} for ${amount} ETH`,
-                };
-                transporter.sendMail(mailOptions, function (error, info) {
+                text: `your vulnerable contract was called by` + address + `with amount` + amount,
+            };
+
+            transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log(error);
                 } else {
                     console.log("Email sent: " + info.response);
                 }
-                }
-                );
-                //save the transaction to the database
-                const receipt = new Receipt({
-                    address: address,
-                    amount: amount,
-                    mailID: info.response,
-                    mailSent: true,
-                });
-                await receipt.save();
-                console.log("receipt saved");
+            }
+            );
+    
+
 
         }
-    });
 
-    }
+
+
+
+
+    });
+}
     module.exports = {messenger};

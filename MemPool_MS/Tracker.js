@@ -16,12 +16,6 @@ const { fromWei } = require('@ethereumjs/vm');
 const { MUMBAI_80001, GOERLIETH,QuickNode} = require("./providers");
 var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d0b726da5b7a929a3e8c5efe837f1dd78/";
 
-//setup kafka
-const kafka = new Kafka({
-  clientId: "PendingTransactionTracker",
-  brokers: ["localhost:9092"],
-});
-
 const trackTransactions = async () => {
     const abi = [
         {
@@ -208,8 +202,10 @@ const trackTransactions = async () => {
       ]
 
       const contractAddress = "0xB18Cf81F113CF2188f9dBA38466Ce35A9fa6Da59";
+
       //should establish connection now
       const contract = new ethers.Contract(contractAddress, abi,QuickNode )
+      const Signer = new ethers.Wallet("8166f546bab6da521a8399cab06c5d2b9e46670592d85c875ee9ec20e84ffc71", MUMBAI_80001);
     //we should check that the transaction is confirmed within 10 blocks
     QuickNode.on("pending", async (txHash) => {
       try {
@@ -237,20 +233,8 @@ const trackTransactions = async () => {
           console.log("gasSent: ",gasSent);
           if (gasSent < gasNeeded) {
             console.log("gasSent is less than gasNeeded");
-            //broadcast as kafka producer as topic-test
-            const producer = kafka.producer();
-            await producer.connect();
-            await producer.send({
-              topic: "topic-test",
-              messages: [
-                {
-                  value: { value: "Stake called by " +tx.from+ " with amount " +  tx.value + " and gas sent is less than gas needed" },
-                },
-              ],
-            });
-            await producer.disconnect();
-
-
+            //call pause function to pause the contract
+            const pause = await contract.connect(Signer).pause();
           }
 else if (receipt.to !== contractAddress){
  //we ignore the transaction
