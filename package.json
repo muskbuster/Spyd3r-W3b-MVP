@@ -1,6 +1,10 @@
 {
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon Listener_MS/index.js",
+    "startMem": "cd MemPool_MS && node index.js",
+    "startMail":"cd Mailer_MS && node index.js",
+    "ClearDocker":"docker-compose rm",
+    "starDocker":"docker-compose up"
   },
   "dependencies": {
     "docker": "^1.0.0",
