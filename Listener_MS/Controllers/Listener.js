@@ -37,9 +37,7 @@ const listener = async () => {
     await producer.send({
       topic: "stake",
       messages: [
-        { value: "Stake called by " + liquidityProvider + " with amount " + amount },
-        { value: liquidityProvider},
-        { value: amount.toString() }
+        { value: "Stake called by " + liquidityProvider + " with amount " + amount }
       ],
 
     });
@@ -60,9 +58,7 @@ const listener = async () => {
     await producer.send({
       topic: "stake",
       messages: [
-        { value: "Unstake called by " + liquidityProvider + "with amount " + amount },
-        { value: liquidityProvider},
-        { value: amount.toString() }
+        { value: "Unstake called by " + liquidityProvider + "with amount " + amount }
       ],
     });
 
