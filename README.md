@@ -57,3 +57,7 @@ call stake with value 1000 or 1000000000000000000 wei ;
 reduce gas fee in metamask to test mempool_MS response ;
 
 check mail upon listener_MS response from CatnipKong05 ;
+
+## The codespace is live share enabled
+Ping me at muskbuster #6052 to get access to the live share session and we can have a live demo
+
