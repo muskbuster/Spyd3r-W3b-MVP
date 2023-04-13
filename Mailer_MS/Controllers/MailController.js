@@ -39,7 +39,7 @@ const messenger = async () => {
                 from: process.env.EMAIL,
                 to:"sudeepkamat79@gmail.com",
                 subject: "Stake Confirmation",
-                text: `your vulnerable contract was called by` + address + `with amount` + amount,
+                text: `your vulnerable contract was called by ` + address + ` with amount ` + amount,
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
@@ -50,7 +50,16 @@ const messenger = async () => {
                 }
             }
             );
-    
+
+            //store in db
+            const receipt = new Receipt({
+                address: address,
+                amount: amount,
+                mailID: mailOptions,
+                mailSent: true,
+            });
+            
+
 
 
         }
