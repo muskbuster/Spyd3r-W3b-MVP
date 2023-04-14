@@ -17,6 +17,8 @@ This MSA based event driven Microservice is built to monitor various transaction
 Note : The contract code is deliberately made vulnerable to reentrancy attack and TOD attack for demonstration purpose.
 
 Current MVP version is built to monitor reentrancy attack and Transaction-Ordering Dependence (TOD) Attack.
+
+All the events emitted are also stored in mongoDB
 There are 3 microservices in this project:
 1. Listener_MS - This microservice listens to the following events
    a. Stake --stakes ether from user
