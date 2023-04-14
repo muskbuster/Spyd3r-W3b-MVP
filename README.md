@@ -25,9 +25,13 @@ There are 3 microservices in this project:
    b. Unstake --unstakes ether from contract
 
 2. MemPool_MS - this microservice monitors the mempool for following interaction patterns to PAUSE THE CONTRACT
+
     a. Same function being called consecutively by same address within 20 blocks
+
     b. Gas sent for the transaction is less than required
+
     c. Stake and unstake are called within 20 blocks of each other
+
     d. consecutive ether transfer from contract within 20 blocks
 
 3. Mailing_MS - This microservice sends an email to the owner of smartcontract upon event emit of stake or unstake.
