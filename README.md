@@ -21,7 +21,9 @@ Current MVP version is built to monitor reentrancy attack and Transaction-Orderi
 All the events emitted are also stored in mongoDB
 There are 3 microservices in this project:
 1. Listener_MS - This microservice listens to the following events
+   
    a. Stake --stakes ether from user
+   
    b. Unstake --unstakes ether from contract
 
 2. MemPool_MS - this microservice monitors the mempool for following interaction patterns to PAUSE THE CONTRACT
