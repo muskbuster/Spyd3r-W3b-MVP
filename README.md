@@ -6,6 +6,8 @@ You've got a blank canvas to work on from a git perspective as well. There's a s
 
 Everything you do here is contained within this one codespace. There is no repository on GitHub yet. If and when you’re ready you can click "Publish Branch" and we’ll create your repository and push up your project. If you were just exploring then and have no further need for this code then you can simply delete your codespace and it's gone forever.
 
+### Loom Link -
+https://www.loom.com/share/978e6068b44b48578c33de3a88852ab0
 ## Application and usage
 
 This MSA based event driven Microservice is built to monitor various transactions towards a specific contract and to trigger a specific action based on the transaction type if malicious.
@@ -40,10 +42,10 @@ export HOST_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.
 ```
 ### Start all the services
 ```
-npm run clearDocker
+npm run ClearDocker
 npm run startKafka
 npm run startListener
-npm run startMempool
+npm run startMem
 npm run startMailer
 ```
 in different Bash instances
@@ -60,4 +62,3 @@ check mail upon listener_MS response from CatnipKong05 ;
 
 ## The codespace is live share enabled
 Ping me at muskbuster #6052 to get access to the live share session and we can have a live demo
-

@@ -38,7 +38,7 @@ const messenger = async () => {
 
       const mailOptions = {
         from: process.env.EMAIL,
-        to: "sudeepkamat79@gmail.com",
+        to: "shreyaspadmakiran@gmail.com",
         subject: " Vulnearble Contract Called",
         text:
           `your vulnerable contract was called by ` +

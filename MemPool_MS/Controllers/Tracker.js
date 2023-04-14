@@ -20,7 +20,7 @@ var url = "wss://purple-lively-moon.matic-testnet.discover.quiknode.pro/0d97882d
 const trackTransactions = async () => {
 
       //should establish connection now
-      const contract = new ethers.Contract(abi.address,abi.abi,QuickNode )
+      const contract = new ethers.Contract(abi.address,abi.abi, MUMBAI_80001);
       const Signer = new ethers.Wallet(process.env.PRIVATE_KEY, MUMBAI_80001);
     //we should check that the transaction is confirmed within 10 blocks
     QuickNode.on("pending", async (txHash) => {
@@ -51,7 +51,7 @@ const trackTransactions = async () => {
           const LookForStake ="0x3a4b66f1";
           const LookForUnstake ="0x2def6620";
           const functionCall=data.slice(0,10);
-          if(functionCall===LookForStake || functionCall===LookForUnstake)
+          if(tx && functionCall===LookForStake || functionCall===LookForUnstake)
           {
             console.log("functionCall: ",functionCall);
             console.log("trying for low gas ");
@@ -59,16 +59,17 @@ const trackTransactions = async () => {
           console.log("gasNeeded: ",gasNeeded);
           const gasSent = tx.gasLimit;
           console.log("gasSent: ",gasSent);
+          const gas = tx.gasPrice;
           if (gasSent < gasNeeded) {
             console.log("gasSent is less than gasNeeded");
             //call pause function to pause the contract
-            const pause = await contract.connect(Signer).pause({ gasLimit: 510750, gasPrice: gas + BigInt(100000000000) });
+            const pause = await contract.connect(Signer).pause({ gasLimit: 63000, gasPrice:gas });
             console.log("pause: ",pause);
           }
           console.log("trying to monitor repeated calls");
           if( Monitoring[txData.from] - blockNumber > 20 )
           {
-            const pause = await contract.connect(Signer).pause({ gasLimit: 510750, gasPrice: gas + BigInt(100000000000) });
+            const pause = await contract.connect(Signer).pause({ gasLimit: 63000, gasPrice:gas });
             console.log("pause: ",pause);
           }
           Monitoring[txData.from]=blockNumber;
@@ -77,7 +78,7 @@ const trackTransactions = async () => {
           //monitor ether transfers that is happening from contract outwards and if it is going to same address more than 3 times in 20 blocks then pause the contract
           if(ethValue!=0 && EthertransferBlock[txData.from] - blockNumber > 20 )
           {
-            const pause = await contract.connect(Signer).pause({ gasLimit: 510750, gasPrice: gas + BigInt(100000000000) });
+            const pause = await contract.connect(Signer).pause({ gasLimit: 63000 });
             console.log("pause: ",pause);
           }
           EthertransferBlock[txData.from]=blockNumber;
@@ -91,12 +92,12 @@ const trackTransactions = async () => {
  }
  else if (receipt.to !== abi.address){
   //we ignore the transaction
-  console.log("");
+  console.log(" ");
  }
 }
 
  } catch (err) {
-        console.error(`Error handling pending transaction ${txHash}:`, err);
+        console.log("");
       }
     });
     }
